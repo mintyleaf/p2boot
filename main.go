@@ -10,7 +10,7 @@ import (
 	"syscall"
 
 	"github.com/common-nighthawk/go-figure"
-	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p/core/host"
 )
 
 type Config struct {
@@ -35,7 +35,7 @@ func main() {
 	art()
 
 	for _, addr := range h.Addrs() {
-		log.Printf("  %s/p2p/%s", addr, h.ID().Pretty())
+		log.Printf("  %s/p2p/%s", addr, h.ID().String())
 	}
 
 	_, err = NewKDHT(ctx, h)
