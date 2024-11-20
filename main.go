@@ -14,8 +14,9 @@ import (
 )
 
 type Config struct {
-	Port int
-	Seed int64
+	Port    int
+	Seed    int64
+	PrivStr string
 }
 
 func main() {
@@ -23,11 +24,12 @@ func main() {
 
 	flag.Int64Var(&config.Seed, "seed", 0, "Seed value for generating a PeerID, 0 is random")
 	flag.IntVar(&config.Port, "port", 0, "")
+	flag.StringVar(&config.PrivStr, "priv", "", "")
 	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	h, err := NewHost(ctx, config.Seed, config.Port)
+	h, err := NewHost(ctx, config.Seed, config.Port, config.PrivStr)
 	if err != nil {
 		log.Fatal(err)
 	}

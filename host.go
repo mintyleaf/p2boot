@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
 	mrand "math/rand"
@@ -13,7 +14,7 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
-func NewHost(ctx context.Context, seed int64, port int) (host.Host, error) {
+func NewHost(ctx context.Context, seed int64, port int, privStr string) (host.Host, error) {
 
 	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
 	// deterministic randomness source to make generated keys stay the same
@@ -25,9 +26,26 @@ func NewHost(ctx context.Context, seed int64, port int) (host.Host, error) {
 		r = mrand.New(mrand.NewSource(seed))
 	}
 
-	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
-	if err != nil {
-		return nil, err
+	var priv crypto.PrivKey
+	var err error
+
+	if privStr == "" {
+		priv, _, err = crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+		if err != nil {
+			return nil, err
+		}
+		bytes, _ := priv.Raw()
+		fmt.Println("base16 private key is:")
+		fmt.Printf("    %x\n", bytes)
+	} else {
+		privBytes, err := hex.DecodeString(privStr)
+		if err != nil {
+			return nil, err
+		}
+		priv, err = crypto.UnmarshalRsaPrivateKey(privBytes)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	addr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port))
